@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Human Being Management System</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+<div class="container">
+    <header>
+        <h1>Human Being Management System</h1>
+        <nav class="menu">
+            <button class="menu-btn active" data-view="table">Objects Table</button>
+            <button class="menu-btn" data-view="special">Special Operations</button>
+        </nav>
+    </header>
+
+    <div id="table-view" class="view active">
+        <div class="toolbar">
+            <button class="btn btn-primary" id="create-btn">Create Object</button>
+            <div class="filters">
+                <select id="filter-column-select">
+                    <option value="">Select column...</option>
+                    <option value="name">Name</option>
+                    <option value="car.name">Car Name</option>
+                    <option value="mood">Mood</option>
+                    <option value="weaponType">Weapon Type</option>
+                </select>
+                <input type="text" id="filter-input" placeholder="Filter value (exact match)...">
+                <button class="btn btn-secondary" id="apply-filter-btn">Apply</button>
+                <button class="btn btn-secondary" id="clear-filter-btn">Clear</button>
+            </div>
+        </div>
+
+        <div class="table-container">
+            <table id="human-beings-table">
+                <thead>
+                <tr>
+                    <th data-sort="id">ID</th>
+                    <th data-sort="name">Name</th>
+                    <th data-sort="coordinates.x">X</th>
+                    <th data-sort="coordinates.y">Y</th>
+                    <th data-sort="creationDate">Creation Date</th>
+                    <th data-sort="realHero">Real Hero</th>
+                    <th data-sort="hasToothpick">Has Toothpick</th>
+                    <th data-sort="car.name">Car Name</th>
+                    <th data-sort="mood">Mood</th>
+                    <th data-sort="impactSpeed">Impact Speed</th>
+                    <th data-sort="minutesOfWaiting">Minutes Of Waiting</th>
+                    <th data-sort="weaponType">Weapon Type</th>
+                    <th>Actions</th>
+                </tr>
+                </thead>
+                <tbody id="table-body">
+                </tbody>
+            </table>
+        </div>
+
+        <div class="pagination">
+            <div class="pagination-left">
+                <select id="page-size-select">
+                    <option value="5">5</option>
+                    <option value="10" selected>10</option>
+                    <option value="15">15</option>
+                    <option value="20">20</option>
+                    <option value="25">25</option>
+                </select>
+            </div>
+            <div class="pagination-right">
+                <button id="prev-page" class="pagination-btn">←</button>
+                <span id="page-info">Page 1 of 1</span>
+                <button id="next-page" class="pagination-btn">→</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="special-view" class="view">
+        <h2>Special Operations</h2>
+        <div class="special-operations">
+            <div class="operation-card">
+                <h3>Delete Object by Weapon Type</h3>
+                <select id="weapon-type-select">
+                    <option value="HAMMER">HAMMER</option>
+                    <option value="RIFLE">RIFLE</option>
+                    <option value="MACHINE_GUN">MACHINE_GUN</option>
+                    <option value="BAT">BAT</option>
+                </select>
+                <button class="btn btn-primary" id="delete-by-weapon-btn">Delete</button>
+                <div id="delete-by-weapon-result"></div>
+            </div>
+
+            <div class="operation-card">
+                <h3>Average Impact Speed</h3>
+                <button class="btn btn-primary" id="avg-speed-btn">Calculate</button>
+                <div id="avg-speed-result"></div>
+            </div>
+
+            <div class="operation-card">
+                <h3>Search by Name (substring)</h3>
+                <input type="text" id="name-search-input" placeholder="Enter substring...">
+                <button class="btn btn-primary" id="search-name-btn">Search</button>
+                <div id="search-results"></div>
+            </div>
+
+            <div class="operation-card">
+                <h3>Set All Heroes Mood to Sadness</h3>
+                <button class="btn btn-primary" id="set-sadness-btn">Change</button>
+                <div id="set-sadness-result"></div>
+            </div>
+
+            <div class="operation-card">
+                <h3>Move Heroes Without Car to Lada Kalina</h3>
+                <button class="btn btn-primary" id="set-lada-btn">Move</button>
+                <div id="set-lada-result"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="modal" class="modal">
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <h2 id="modal-title">Create Object</h2>
+        <form id="human-being-form">
+            <input type="hidden" id="form-id">
+
+            <div class="form-group">
+                <label>Name *</label>
+                <input type="text" id="form-name" required>
+                <span class="error" id="error-name"></span>
+            </div>
+
+            <div class="form-group">
+                <label>Coordinate X * (max 112)</label>
+                <input type="number" id="form-x" max="112" required>
+                <span class="error" id="error-x"></span>
+            </div>
+
+            <div class="form-group">
+                <label>Coordinate Y * (greater than -926)</label>
+                <input type="number" id="form-y" step="0.01" required>
+                <span class="error" id="error-y"></span>
+            </div>
+
+            <div class="form-group">
+                <label>Real Hero *</label>
+                <select id="form-real-hero" required>
+                    <option value="true">Yes</option>
+                    <option value="false">No</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Has Toothpick</label>
+                <select id="form-has-toothpick">
+                    <option value="">null</option>
+                    <option value="true">Yes</option>
+                    <option value="false">No</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Car Name</label>
+                <input type="text" id="form-car-name" placeholder="Enter car name (optional)...">
+                <span class="error" id="error-car-name"></span>
+            </div>
+
+            <div class="form-group">
+                <label>Mood *</label>
+                <select id="form-mood" required>
+                    <option value="SADNESS">SADNESS</option>
+                    <option value="CALM">CALM</option>
+                    <option value="RAGE">RAGE</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Impact Speed * (max 345)</label>
+                <input type="number" id="form-impact-speed" step="0.01" max="345" required>
+                <span class="error" id="error-impact-speed"></span>
+            </div>
+
+            <div class="form-group">
+                <label>Minutes Of Waiting *</label>
+                <input type="number" id="form-minutes-waiting" step="0.01" required>
+                <span class="error" id="error-minutes-waiting"></span>
+            </div>
+
+            <div class="form-group">
+                <label>Weapon Type</label>
+                <select id="form-weapon-type">
+                    <option value="">null</option>
+                    <option value="HAMMER">HAMMER</option>
+                    <option value="RIFLE">RIFLE</option>
+                    <option value="MACHINE_GUN">MACHINE_GUN</option>
+                    <option value="BAT">BAT</option>
+                </select>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">Save</button>
+                <button type="button" class="btn btn-secondary" id="cancel-btn">Cancel</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div id="car-modal" class="modal">
+    <div class="modal-content">
+        <span class="close" id="close-car-modal">&times;</span>
+        <h2>Create Car</h2>
+        <form id="car-form">
+            <div class="form-group">
+                <label>Car Name</label>
+                <input type="text" id="car-name-input">
+            </div>
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">Create</button>
+                <button type="button" class="btn btn-secondary" id="cancel-car-btn">Cancel</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div id="view-modal" class="modal">
+    <div class="modal-content">
+        <span class="close" id="close-view-modal">&times;</span>
+        <h2>Object Information</h2>
+        <div id="view-content"></div>
+        <div class="form-actions">
+            <button class="btn btn-primary" id="edit-from-view-btn">Edit</button>
+            <button class="btn btn-secondary" id="close-view-btn">Close</button>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/stompjs@2/lib/stomp.min.js"></script>
+<script src="js/api.js"></script>
+<script src="js/websocket.js"></script>
+<script src="js/table.js"></script>
+<script src="js/modal.js"></script>
+<script src="js/special.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>
