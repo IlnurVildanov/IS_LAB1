@@ -6,8 +6,10 @@ import org.example.mapper.HumanBeingMapper;
 import org.example.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -218,18 +220,33 @@ public class HumanBeingService {
     }
 
     public int setAllHeroesMoodToSadness() {
-        List<HumanBeing> heroes = humanBeingRepository.findAllRealHeroes();
-        int changed = 0;
+        int totalChanged = 0;
+        int batchSize = 1000;
+        long lastId = 0L;
 
-        for (HumanBeing hb : heroes) {
-            if (hb.getMood() != Mood.SADNESS) {
-                hb.setMood(Mood.SADNESS);
-                changed++;
+        while (true) {
+            List<Long> ids = humanBeingRepository.findHeroIdsAfter(
+                    lastId,
+                    Mood.SADNESS,
+                    PageRequest.of(0, batchSize)
+            );
+
+            if (ids.isEmpty()) {
+                break;
             }
+
+            int changedInBatch = updateMoodChunk(ids);
+            totalChanged += changedInBatch;
+
+            lastId = ids.get(ids.size() - 1);
         }
 
-        humanBeingRepository.saveAll(heroes);
-        return changed;
+        return totalChanged;
+    }
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public int updateMoodChunk(List<Long> ids) {
+        return humanBeingRepository.updateMoodByIds(ids, Mood.SADNESS);
     }
 
 
